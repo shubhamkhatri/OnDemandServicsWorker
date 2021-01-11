@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.shubham.ondemandservicsworker">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OnDemandServicsWorker">
+
+        <activity android:name=".activity.IntroSlider"/>
+        <activity android:name=".activity.SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.WalletActivity"
+            android:label="My Wallet" />
+        <activity
+            android:name=".activity.BookingInfoActivity"
+            android:label="Booking Details" />
+        <activity android:name=".activity.LocationUpdateActivity" />
+        <activity android:name=".activity.LocationActivity" />
+        <activity
+            android:name=".activity.BookingHistoryInfoActivity"
+            android:label="Booking History" />
+        <activity
+            android:name=".activity.ContactUsActivity"
+            android:label="Contact Us" />
+        <activity android:name=".activity.PrivacyPolicyActivity" />
+        <activity android:name=".activity.AboutUsActivity" />
+        <activity android:name=".activity.EditProfileActivity" />
+        <activity android:name=".activity.PreLoginActivity" />
+        <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.TabLayoutActivity" />
+        <activity android:name=".activity.SignUpActivity" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAfDS0MdlH32eIU7IbntZy20AgDZKynseo" />
+
+        <service
+            android:name=".activity.LocationActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location" />
+        <service
+            android:name=".activity.LocationUpdateActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location" />
+    </application>
+
+</manifest>
