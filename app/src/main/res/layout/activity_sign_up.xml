@@ -256,6 +256,7 @@
                     android:backgroundTint="@color/button"
                     android:text="Register"
                     android:textAllCaps="true"
+                    android:textColor="@color/white"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
 

@@ -15,7 +15,9 @@
         android:layout_alignParentBottom="true"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="6dp"/>
+        android:layout_marginBottom="6dp"
+        android:textColor="@color/white"
+        android:background="@color/button"/>
 
     <fragment
         android:id="@+id/location_google_map"
