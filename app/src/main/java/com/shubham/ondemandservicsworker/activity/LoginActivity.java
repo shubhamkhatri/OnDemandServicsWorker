@@ -125,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
         public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
             super.onCodeSent(s, forceResendingToken);
             codeSentToUser = s;
+            verify.setClickable(true);
             //OTP that is sent to the user
         }
 

@@ -377,6 +377,7 @@
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
                 android:text="navigate"
+                android:textColor="@color/white"
                 android:backgroundTint="@color/button"/>
 
             <Button
@@ -388,6 +389,7 @@
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
                 android:text="Complete"
+                android:textColor="@color/white"
                 android:backgroundTint="#39B814"/>
 
 

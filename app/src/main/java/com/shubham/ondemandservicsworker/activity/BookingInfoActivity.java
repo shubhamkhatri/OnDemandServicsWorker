@@ -22,6 +22,11 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -32,6 +37,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.shubham.ondemandservicsworker.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class BookingInfoActivity extends AppCompatActivity {
 
@@ -45,8 +62,8 @@ public class BookingInfoActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private Button complete, navigate;
     private String Latitude, Longitude;
-    private String destination = "",Wallet,ServicesWorker,ServicesUser,dateTime;
-    private int walletMoney,servicesWorker,servicesUser;
+    private String destination = "", Wallet, ServicesWorker, ServicesUser, dateTime;
+    private int walletMoney, servicesWorker, servicesUser;
     private ProgressDialog progressDialog2;
 
 
@@ -81,7 +98,7 @@ public class BookingInfoActivity extends AppCompatActivity {
                         user = documentSnapshot.getString("User");
                         Status = documentSnapshot.getString("Status");
                         CarCompany = documentSnapshot.getString("Car Company");
-                        CarName = documentSnapshot.getString("Car Name");
+                        CarName = documentSnapshot.getString("Car Model");
                         CarNumber = documentSnapshot.getString("Car Number");
                         CarType = documentSnapshot.getString("Car Type");
                         Date = documentSnapshot.getString("Date");
@@ -97,7 +114,7 @@ public class BookingInfoActivity extends AppCompatActivity {
                         Longitude = documentSnapshot.getString("Longitude");
 
                         destination = Latitude + ", " + Longitude;
-                        dateTime=Date+" "+Time;
+                        dateTime = Date + " " + Time;
 
                         phoneNumber.setText(user);
 
@@ -147,11 +164,11 @@ public class BookingInfoActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Wallet=documentSnapshot.getString("Wallet");
-                        ServicesWorker=documentSnapshot.getString("Services Done");
-                        walletMoney=Integer.parseInt(Wallet);
-                        servicesWorker=Integer.parseInt(ServicesWorker);
-                      getUserInfo(user);
+                        Wallet = documentSnapshot.getString("Wallet");
+                        ServicesWorker = documentSnapshot.getString("Services Done");
+                        walletMoney = Integer.parseInt(Wallet);
+                        servicesWorker = Integer.parseInt(ServicesWorker);
+                        getUserInfo(user);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -170,8 +187,8 @@ public class BookingInfoActivity extends AppCompatActivity {
                         String Fname = documentSnapshot.getString("First Name");
                         String Lname = documentSnapshot.getString("Last Name");
                         String Address = documentSnapshot.getString("Address");
-                        ServicesUser=documentSnapshot.getString("Services Done");
-                        servicesUser=Integer.parseInt(ServicesUser);
+                        ServicesUser = documentSnapshot.getString("Services Done");
+                        servicesUser = Integer.parseInt(ServicesUser);
                         Name = Fname + " " + Lname;
                         name.setText(Name);
                         address.setText(Address);
@@ -195,29 +212,35 @@ public class BookingInfoActivity extends AppCompatActivity {
 
                 progressDialog2.show();
 
-                if(Payment.equals("Online")){
-                    walletMoney=walletMoney+Integer.parseInt(TotalPrice);
+                if (Payment.equals("Online")) {
+                    walletMoney = walletMoney + Integer.parseInt(TotalPrice);
                 }
 
-                servicesUser=servicesUser+1;
-                servicesWorker=servicesWorker+1;
+                servicesUser = servicesUser + 1;
+                servicesWorker = servicesWorker + 1;
 
-                db.collection("bookings").document(id).update("Status","Complete")
+                db.collection("bookings").document(id).update("Status", "Complete")
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 db.collection("workers").document(worker).update("Time Slot", FieldValue.arrayRemove(dateTime)
-                                        ,"Wallet",String.valueOf(walletMoney),"Services Done",String.valueOf(servicesWorker))
+                                        , "Wallet", String.valueOf(walletMoney), "Services Done", String.valueOf(servicesWorker))
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                db.collection("users").document(user).update("Services Done",String.valueOf(servicesUser))
+                                                db.collection("users").document(user).update("Services Done", String.valueOf(servicesUser))
                                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
                                                                 Toast.makeText(BookingInfoActivity.this, "Booking Completed Successfully", Toast.LENGTH_SHORT).show();
-                                                                progressDialog2.dismiss();
-                                                                finish();
+                                                                //progressDialog2.dismiss();
+                                                                //finish();
+                                                                String message = "Booking Complete Successfully by " + worker + ". Please rate the worker in booking section.\nThank you for choosing On Demand Services.";
+                                                                try {
+                                                                    sendSms(message, user);
+                                                                } catch (UnsupportedEncodingException e) {
+                                                                    e.printStackTrace();
+                                                                }
                                                             }
                                                         }).addOnFailureListener(new OnFailureListener() {
                                                     @Override
@@ -310,4 +333,52 @@ public class BookingInfoActivity extends AppCompatActivity {
     }
 
 
+    public void sendSms(String message, String number) throws UnsupportedEncodingException {
+
+        String apiKey = "pWFDfjPQTXlN48gzytVhU97SudYms3iRo6KnEJ0ZweGOMBLkqrVHTYySCjaIihskcoBrJ4O6tUmEvG1g";
+        String sendId = "FSTSMS";
+
+        //important step...
+        message = URLEncoder.encode(message, "UTF-8");
+        String language = "english";
+
+        String route = "p";
+
+        String myUrl = "https://www.fast2sms.com/dev/bulk?authorization=" + apiKey + "&sender_id=" + sendId + "&message=" + message + "&language=" + language + "&route=" + route + "&numbers=" + number;
+
+        StringRequest requestSms = new StringRequest(myUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                JSONObject object = null;
+                try {
+                    object = new JSONObject(response);
+                    String ret = object.getString("return");
+                    String reqId = object.getString("request_id");
+                    JSONArray dataArray = object.getJSONArray("message");
+                    String res = dataArray.getString(0);
+
+                    Toast.makeText(getApplicationContext(), "Message: " + res, Toast.LENGTH_SHORT).show();
+                    progressDialog2.dismiss();
+                    Intent intent = new Intent(BookingInfoActivity.this, TabLayoutActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    progressDialog2.dismiss();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Toast.makeText(getApplicationContext(), "Some error occurred!!", Toast.LENGTH_SHORT).show();
+                progressDialog2.dismiss();
+            }
+        });
+
+        RequestQueue rQueue = Volley.newRequestQueue(BookingInfoActivity.this);
+        rQueue.add(requestSms);
+
+    }
 }

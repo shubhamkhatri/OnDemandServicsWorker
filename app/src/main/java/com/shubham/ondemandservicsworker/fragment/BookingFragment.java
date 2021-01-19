@@ -3,6 +3,7 @@ package com.shubham.ondemandservicsworker.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +38,7 @@ import com.shubham.ondemandservicsworker.model.historyList;
 import com.shubham.ondemandservicsworker.model.historyList;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BookingFragment extends Fragment {
@@ -82,6 +85,7 @@ public class BookingFragment extends Fragment {
         db.collection("bookings").whereEqualTo("Worker", PhoneNumber)
                 .whereEqualTo("Status", "Ongoing")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -113,7 +117,7 @@ public class BookingFragment extends Fragment {
 
                         booking.add(new historyList(id, Model, carNumber, Service, DateTime, carType, price, status));
                     }
-
+                    booking.sort(Comparator.comparing(o -> o.getDateTime()));
                     if(booking.size()>0)
                         nothing.setVisibility(View.GONE);
 

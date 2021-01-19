@@ -66,7 +66,7 @@ public class BookingHistoryInfoActivity extends AppCompatActivity {
                         user = documentSnapshot.getString("User");
                         Status = documentSnapshot.getString("Status");
                         CarCompany = documentSnapshot.getString("Car Company");
-                        CarName = documentSnapshot.getString("Car Name");
+                        CarName = documentSnapshot.getString("Car Model");
                         CarNumber = documentSnapshot.getString("Car Number");
                         CarType = documentSnapshot.getString("Car Type");
                         Date = documentSnapshot.getString("Date");
